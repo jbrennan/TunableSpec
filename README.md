@@ -57,3 +57,27 @@ The values come from a JSON file that looks like this:
 When you've changed values in a way you want to keep, a "share" button in the UI exports a replacement JSON file to be checked into source control. 
 
 See `KFTunableSpec.h` for full documentation, and `Spring Playground` for an example app.
+
+Swift
+-----
+
+If you're using Swift, you can use the alternative interface defined in `TunableSpec.swift`, which features:
+
+* a unified API for all the spec value types
+* stronger typing for "owner" semantics in maintenance blocks
+* overrides for `CGFloat` to smooth over Swift's unwillingness to convert `Double` to `CGFloat`
+
+With this interface, usage looks like:
+
+```swift
+let spec = TunableSpec(name: "MainSpec")
+overlayView.alpha = spec["OverlayViewAlpha"]
+// or:
+spec.withKey("OverlayViewAlpha", owner: self) { $0.overlayView.alpha = $1 }
+```
+
+To use the Swift interface:
+
+1. Add `TunableSpec.swift` to your project.
+2. If prompted, accept Xcode's offer to configure an Objective-C bridging header.
+3. Add `#import "KFTunableSpec.h"` to `YourProject-Bridging-Header.h`.
