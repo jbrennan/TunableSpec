@@ -1,6 +1,6 @@
 //
 //  TunableSpec.swift
-//  BlockPhysics
+//  TunableSpec
 //
 //  Created by Andy Matuschak on 8/21/14.
 //  Copyright (c) 2014 Ken Ferry.
