@@ -3,7 +3,8 @@
 //  BlockPhysics
 //
 //  Created by Andy Matuschak on 8/21/14.
-//  Copyright (c) 2014 Khan Academy. All rights reserved.
+//  Copyright (c) 2014 Ken Ferry.
+//  See LICENSE for details.
 //
 
 import Foundation
