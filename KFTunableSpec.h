@@ -63,10 +63,31 @@ Sample JSON:
 
 #import <UIKit/UIKit.h>
 
+@interface _KFSpecItem : NSObject {
+	NSMapTable *_maintenanceBlocksByOwner;
+	id _objectValue;
+}
+@property (nonatomic) NSString *key;
+@property (nonatomic) NSString *label;
+
+@property (nonatomic) id objectValue;
+@property (nonatomic) id defaultValue;
+
+- (void)withOwner:(id)weaklyHeldOwner maintain:(void (^)(id owner, id objValue))maintenanceBlock;
+
+// override this
+- (UIView *)tuningView;
+
+@end
 
 @interface KFTunableSpec : NSObject
 
 + (id)specNamed:(NSString *)name;
+
+- (_KFSpecItem *)_KFSpecItemForKey:(NSString *)key;
+- (void)addDoubleSpecItemForKey:(NSString *)key defaultValue:(double)defaultValue;
+- (void)addBoolSpecItemForKey:(NSString *)key defaultValue:(BOOL)defaultValue;
+
 
 #pragma mark Getting Values
 

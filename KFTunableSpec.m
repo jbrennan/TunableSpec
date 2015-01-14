@@ -15,23 +15,6 @@ static UIImage *CloseImage();
 static UIImage *CalloutBezelImage();
 static UIImage *CalloutArrowImage();
 
-@interface _KFSpecItem : NSObject {
-    NSMapTable *_maintenanceBlocksByOwner;
-    id _objectValue;
-}
-@property (nonatomic) NSString *key;
-@property (nonatomic) NSString *label;
-
-@property (nonatomic) id objectValue;
-@property (nonatomic) id defaultValue;
-
-- (void)withOwner:(id)weaklyHeldOwner maintain:(void (^)(id owner, id objValue))maintenanceBlock;
-
-// override this
-- (UIView *)tuningView;
-
-@end
-
 @implementation _KFSpecItem
 
 + (NSArray *)propertiesForJSONRepresentation {
@@ -355,32 +338,33 @@ static NSMutableDictionary *sSpecsByName;
 
 - (id)initWithName:(NSString *)name {
     self = [super init];
-    if (self) {
-        [self setName:name];
-        _KFSpecItems = [[NSMutableArray alloc] init];
-        _savedDictionaryRepresentations = [NSMutableArray array];
-        
-        NSParameterAssert(name != nil);
-        NSURL *jsonURL = [[NSBundle mainBundle] URLForResource:name withExtension:@"json"];
-        NSAssert(jsonURL != nil, @"Missing %@.json in resources directory.", name);
-        
-        NSData *jsonData = [NSData dataWithContentsOfURL:jsonURL];
-        NSError *error = nil;
-        NSArray *specItemReps = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error];
-        NSAssert(specItemReps != nil, @"error decoding %@.json: %@", name, error);
+	if (self) {
+		[self setName:name];
+		_KFSpecItems = [[NSMutableArray alloc] init];
+		_savedDictionaryRepresentations = [NSMutableArray array];
 
-        for (NSDictionary *rep in specItemReps) {
-            _KFSpecItem *specItem = nil;
-            specItem = specItem ?: [[_KFSilderSpecItem alloc] initWithJSONRepresentation:rep];
-            specItem = specItem ?: [[_KFSwitchSpecItem alloc] initWithJSONRepresentation:rep];
-            
-            if (specItem) {
-                [_KFSpecItems addObject:specItem];
-            } else {
-                NSLog(@"%s: Couldn't read entry %@ in %@. Probably you're missing a key? Check KFTunableSpec.h.", __func__, rep, name);
-            }
-        }
-    }
+		if (name != nil) {
+			NSURL *jsonURL = [[NSBundle mainBundle] URLForResource:name withExtension:@"json"];
+			if (jsonURL) {
+				NSData *jsonData = [NSData dataWithContentsOfURL:jsonURL];
+				NSError *error = nil;
+				NSArray *specItemReps = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error];
+				NSAssert(specItemReps != nil, @"error decoding %@.json: %@", name, error);
+
+				for (NSDictionary *rep in specItemReps) {
+					_KFSpecItem *specItem = nil;
+					specItem = specItem ?: [[_KFSilderSpecItem alloc] initWithJSONRepresentation:rep];
+					specItem = specItem ?: [[_KFSwitchSpecItem alloc] initWithJSONRepresentation:rep];
+
+					if (specItem) {
+						[_KFSpecItems addObject:specItem];
+					} else {
+						NSLog(@"%s: Couldn't read entry %@ in %@. Probably you're missing a key? Check KFTunableSpec.h.", __func__, rep, name);
+					}
+				}
+			}
+		}
+	}
     return self;
 }
 
@@ -395,8 +379,15 @@ static NSMutableDictionary *sSpecsByName;
             return specItem;
         }
     }
-    NSLog(@"%@:Warning – you're trying to use key \"%@\" that doesn't have a valid entry in %@.json. That's unsupported.", [self class], key, [self name]);
     return nil;
+}
+
+- (void)addDoubleSpecItemForKey:(NSString *)key defaultValue:(double)defaultValue {
+	[_KFSpecItems addObject:[[_KFSilderSpecItem alloc] initWithJSONRepresentation:@{@"key": key, @"sliderValue": @(defaultValue)}]];
+}
+
+- (void)addBoolSpecItemForKey:(NSString *)key defaultValue:(BOOL)defaultValue {
+	[_KFSpecItems addObject:[[_KFSwitchSpecItem alloc] initWithJSONRepresentation:@{@"key": key, @"switchValue": @(defaultValue)}]];
 }
 
 - (double)doubleForKey:(NSString *)key {
