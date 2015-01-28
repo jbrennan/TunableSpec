@@ -133,7 +133,7 @@ static NSString *CamelCaseToSpaces(NSString *camelCaseString) {
 }
 @end
 
-@interface _KFSilderSpecItem : _KFSpecItem
+@interface _KFSliderSpecItem : _KFSpecItem
 @property (nonatomic) NSNumber *sliderMinValue;
 @property (nonatomic) NSNumber *sliderMaxValue;
 @property UIView *container;
@@ -142,7 +142,7 @@ static NSString *CamelCaseToSpaces(NSString *camelCaseString) {
 @property NSLayoutConstraint *calloutXCenter;
 @end
 
-@implementation _KFSilderSpecItem
+@implementation _KFSliderSpecItem
 
 + (NSArray *)propertiesForJSONRepresentation {
     static NSArray *sProps;
@@ -165,13 +165,22 @@ static NSString *CamelCaseToSpaces(NSString *camelCaseString) {
     if (![self container]) {
         UIView *container = [[UIView alloc] init];
         UISlider *slider = [[UISlider alloc] init];
-        _KFCalloutView *callout = [[_KFCalloutView alloc] init];
-        NSDictionary *views = NSDictionaryOfVariableBindings(slider, callout);
+        UILabel *valLabel = [[UILabel alloc] init];
+        
+        NSDictionary *views = NSDictionaryOfVariableBindings(slider, valLabel);
+        
+        [valLabel setTextColor:[UIColor whiteColor]];
+        [valLabel setBackgroundColor:[UIColor clearColor]];
+        [valLabel setTranslatesAutoresizingMaskIntoConstraints:NO];
+        valLabel.text = @"BLHAALKSADLKH";
+        [valLabel setTextAlignment:NSTextAlignmentLeft];
 
         [self setSlider:slider];
         [slider setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [valLabel setTranslatesAutoresizingMaskIntoConstraints:NO];
         [container addSubview:slider];
-        [container addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[slider]-0-|" options:0 metrics:nil views:views]];
+        [container addSubview:valLabel];
+        [container addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[slider]-[valLabel(60)]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:views]];
         [container addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[slider]-0-|" options:0 metrics:nil views:views]];
         [slider addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"[slider(>=300@720)]" options:0 metrics:nil views:views]];
         [slider addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[slider(>=25@750)]" options:0 metrics:nil views:views]];
@@ -181,19 +190,13 @@ static NSString *CamelCaseToSpaces(NSString *camelCaseString) {
         [self withOwner:self maintain:^(id owner, id objValue) { [slider setValue:[objValue doubleValue]]; }];
         [slider addTarget:self action:@selector(takeSliderValue:) forControlEvents:UIControlEventValueChanged];
 
-        [callout setTranslatesAutoresizingMaskIntoConstraints:NO];
-        [container addSubview:callout];
-        [container addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[callout]-3-[slider]" options:0 metrics:nil views:views]];
-        [self setCalloutXCenter:[NSLayoutConstraint constraintWithItem:callout attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:container attribute:NSLayoutAttributeLeft multiplier:1 constant:0]];
-        [container addConstraint:[self calloutXCenter]];
-        [callout setAlpha:0];
 
-        [self withOwner:self maintain:^(id owner, id objValue) { [[callout label] setText:[NSString stringWithFormat:@"%.2f", [objValue doubleValue]]]; }];
-        [slider addTarget:self action:@selector(showCallout:) forControlEvents:UIControlEventTouchDown];
+        [container addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[slider]" options:0 metrics:nil views:views]];
+
+        [self withOwner:self maintain:^(id owner, id objValue) { [valLabel setText:[NSString stringWithFormat:@"%.2f", [objValue doubleValue]]]; }];
+
         [slider addTarget:self action:@selector(updateCalloutXCenter:) forControlEvents:UIControlEventValueChanged];
-        [slider addTarget:self action:@selector(hideCallout:) forControlEvents:UIControlEventTouchUpInside|UIControlEventTouchUpOutside|UIControlEventTouchCancel];
-        
-        [self setCalloutView:callout];
+
         [self setContainer:container];
     }
     return [self container];
@@ -353,7 +356,7 @@ static NSMutableDictionary *sSpecsByName;
 
 				for (NSDictionary *rep in specItemReps) {
 					_KFSpecItem *specItem = nil;
-					specItem = specItem ?: [[_KFSilderSpecItem alloc] initWithJSONRepresentation:rep];
+					specItem = specItem ?: [[_KFSliderSpecItem alloc] initWithJSONRepresentation:rep];
 					specItem = specItem ?: [[_KFSwitchSpecItem alloc] initWithJSONRepresentation:rep];
 
 					if (specItem) {
@@ -383,7 +386,7 @@ static NSMutableDictionary *sSpecsByName;
 }
 
 - (void)addDoubleSpecItemForKey:(NSString *)key defaultValue:(double)defaultValue minValue:(double)minValue maxValue:(double)maxValue {
-	[_KFSpecItems addObject:[[_KFSilderSpecItem alloc] initWithJSONRepresentation:@{@"key": key, @"sliderValue": @(defaultValue), @"sliderMinValue": @(minValue), @"sliderMaxValue": @(maxValue)}]];
+	[_KFSpecItems addObject:[[_KFSliderSpecItem alloc] initWithJSONRepresentation:@{@"key": key, @"sliderValue": @(defaultValue), @"sliderMinValue": @(minValue), @"sliderMaxValue": @(maxValue)}]];
 }
 
 - (void)addBoolSpecItemForKey:(NSString *)key defaultValue:(BOOL)defaultValue {
@@ -426,6 +429,8 @@ static NSMutableDictionary *sSpecsByName;
         [label setTranslatesAutoresizingMaskIntoConstraints:NO];
         [label setText:[[def label] stringByAppendingString:@":"]];
         [label setTextAlignment:NSTextAlignmentRight];
+        
+        
         id views = lastControl ? NSDictionaryOfVariableBindings(label, control, lastControl) : NSDictionaryOfVariableBindings(label, control);
         [views enumerateKeysAndObjectsUsingBlock:^(NSString *key, id view, BOOL *stop) {
             if (view != lastControl) { // lastControl is already a subview, and adding it again here can change the z-ordering such that it might obstruct a callout.
