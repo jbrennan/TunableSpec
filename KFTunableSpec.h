@@ -85,7 +85,7 @@ Sample JSON:
 + (id)specNamed:(NSString *)name;
 
 - (_KFSpecItem *)_KFSpecItemForKey:(NSString *)key;
-- (void)addDoubleSpecItemForKey:(NSString *)key defaultValue:(double)defaultValue;
+- (void)addDoubleSpecItemForKey:(NSString *)key defaultValue:(double)defaultValue minValue:(double)minValue maxValue:(double)maxValue;
 - (void)addBoolSpecItemForKey:(NSString *)key defaultValue:(BOOL)defaultValue;
 
 

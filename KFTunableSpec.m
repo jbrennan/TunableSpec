@@ -382,8 +382,8 @@ static NSMutableDictionary *sSpecsByName;
     return nil;
 }
 
-- (void)addDoubleSpecItemForKey:(NSString *)key defaultValue:(double)defaultValue {
-	[_KFSpecItems addObject:[[_KFSilderSpecItem alloc] initWithJSONRepresentation:@{@"key": key, @"sliderValue": @(defaultValue)}]];
+- (void)addDoubleSpecItemForKey:(NSString *)key defaultValue:(double)defaultValue minValue:(double)minValue maxValue:(double)maxValue {
+	[_KFSpecItems addObject:[[_KFSilderSpecItem alloc] initWithJSONRepresentation:@{@"key": key, @"sliderValue": @(defaultValue), @"sliderMinValue": @(minValue), @"sliderMaxValue": @(maxValue)}]];
 }
 
 - (void)addBoolSpecItemForKey:(NSString *)key defaultValue:(BOOL)defaultValue {
