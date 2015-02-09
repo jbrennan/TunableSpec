@@ -67,7 +67,7 @@ import UIKit
 public class TunableSpec {
 	private var spec: KFTunableSpec!
 	public init(name: String) {
-		spec = KFTunableSpec.specNamed(name) as KFTunableSpec?
+		spec = KFTunableSpec.specNamed(name) as! KFTunableSpec?
 		assert(spec != nil, "failed to load spec named \(name)")
 	}
 
@@ -86,15 +86,15 @@ public class TunableSpec {
 	}
 
 	public func withKey<T where T: AnyObject>(key: String, owner weaklyHeldOwner: T, maintain maintenanceBlock: (T, Double) -> ()) {
-		spec.withDoubleForKey(key, owner: weaklyHeldOwner, maintain: { maintenanceBlock($0 as T, $1) })
+		spec.withDoubleForKey(key, owner: weaklyHeldOwner, maintain: { maintenanceBlock($0 as! T, $1) })
 	}
 
 	public func withKey<T where T: AnyObject>(key: String, owner weaklyHeldOwner: T, maintain maintenanceBlock: (T, CGFloat) -> ()) {
-		spec.withDoubleForKey(key, owner: weaklyHeldOwner, maintain: { maintenanceBlock($0 as T, CGFloat($1)) })
+		spec.withDoubleForKey(key, owner: weaklyHeldOwner, maintain: { maintenanceBlock($0 as! T, CGFloat($1)) })
 	}
 
 	public func withKey<T where T: AnyObject>(key: String, owner weaklyHeldOwner: T, maintain maintenanceBlock: (T, Bool) -> ()) {
-		spec.withBoolForKey(key, owner: weaklyHeldOwner, maintain: { maintenanceBlock($0 as T, $1) })
+		spec.withBoolForKey(key, owner: weaklyHeldOwner, maintain: { maintenanceBlock($0 as! T, $1) })
 	}
 
 	// MARK: Showing Tuning UI
