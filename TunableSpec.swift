@@ -64,8 +64,8 @@ import UIKit
 			self.label.text = "\(value)" // LEAKS, DO NOT DO THIS, USE OWNER OR CAPTURE LABEL ITSELF
 		}
 */
-public class TunableSpec {
-	private var spec: KFTunableSpec!
+open class TunableSpec {
+	fileprivate var spec: KFTunableSpec!
 	public init(name: String) {
 		spec = KFTunableSpec.specNamed(name) as KFTunableSpec?
 		assert(spec != nil, "failed to load spec named \(name)")
@@ -73,42 +73,42 @@ public class TunableSpec {
 
 	// MARK: Getting Values
 
-	public subscript(key: String) -> Double {
-		return spec.doubleForKey(key)
+	open subscript(key: String) -> Double {
+		return spec.double(forKey: key)
 	}
 
-	public subscript(key: String) -> CGFloat {
-		return CGFloat(spec.doubleForKey(key))
+	open subscript(key: String) -> CGFloat {
+		return CGFloat(spec.double(forKey: key))
 	}
 
-	public subscript(key: String) -> Bool {
-		return spec.boolForKey(key)
+	open subscript(key: String) -> Bool {
+		return spec.bool(forKey: key)
 	}
 
-	public func withKey<T where T: AnyObject>(key: String, owner weaklyHeldOwner: T, maintain maintenanceBlock: (T, Double) -> ()) {
-		spec.withDoubleForKey(key, owner: weaklyHeldOwner, maintain: { maintenanceBlock($0 as T, $1) })
+	open func withKey<T>(_ key: String, owner weaklyHeldOwner: T, maintain maintenanceBlock: @escaping (T, Double) -> ()) where T: AnyObject {
+		spec.withDoubleForKey(key, owner: weaklyHeldOwner, maintain: { maintenanceBlock($0 as! T, $1) })
 	}
 
-	public func withKey<T where T: AnyObject>(key: String, owner weaklyHeldOwner: T, maintain maintenanceBlock: (T, CGFloat) -> ()) {
-		spec.withDoubleForKey(key, owner: weaklyHeldOwner, maintain: { maintenanceBlock($0 as T, CGFloat($1)) })
+	open func withKey<T>(_ key: String, owner weaklyHeldOwner: T, maintain maintenanceBlock: @escaping (T, CGFloat) -> ()) where T: AnyObject {
+		spec.withDoubleForKey(key, owner: weaklyHeldOwner, maintain: { maintenanceBlock($0 as! T, CGFloat($1)) })
 	}
 
-	public func withKey<T where T: AnyObject>(key: String, owner weaklyHeldOwner: T, maintain maintenanceBlock: (T, Bool) -> ()) {
-		spec.withBoolForKey(key, owner: weaklyHeldOwner, maintain: { maintenanceBlock($0 as T, $1) })
+	open func withKey<T>(_ key: String, owner weaklyHeldOwner: T, maintain maintenanceBlock: @escaping (T, Bool) -> ()) where T: AnyObject {
+		spec.withBoolForKey(key, owner: weaklyHeldOwner, maintain: { maintenanceBlock($0 as! T, $1) })
 	}
 
 	// MARK: Showing Tuning UI
 
 	// useful as a metrics dictionary in -[NSLayoutConstraint constraintsWithVisualFormat:options:metrics:views:]
-	public func dictionaryRepresentation() -> NSDictionary {
-		return spec.dictionaryRepresentation()
+	open func dictionaryRepresentation() -> NSDictionary {
+		return spec.dictionaryRepresentation() as NSDictionary
 	}
 
-	public func twoFingerTripleTapGestureRecognizer() -> UIGestureRecognizer {
+	open func twoFingerTripleTapGestureRecognizer() -> UIGestureRecognizer {
 		return spec.twoFingerTripleTapGestureRecognizer()
 	}
 
-	public var controlsAreVisible: Bool {
+	open var controlsAreVisible: Bool {
 		get {
 			return spec.controlsAreVisible
 		}
